@@ -2,7 +2,7 @@
 #define DAYTIME_H
 
 /* Server address/port used by the client, port the server binds to. */
-#define SERVER_IP    "127.0.0.1"
+#define SERVER_IP    "172.233.157.24"
 #define SERVER_PORT  13013          /* real Daytime is 13, which needs admin/root */
 #define BUFFER_SIZE  256
 #define RECV_TIMEOUT_SEC 5          /* give up if no valid reply arrives */
