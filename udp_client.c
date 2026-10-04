@@ -12,18 +12,23 @@ int main(void)
     SOCKET s;
     int n;
     time_t deadline;
-
+    // initialize socket
     SOCK_INIT();
-
+    // set bytes to zero
     memset(&server, 0, sizeof server);
+    // set address to IPv4
     server.sin_family = AF_INET;
+    // store server port from header
     server.sin_port = htons(SERVER_PORT);
-    if (inet_pton(AF_INET, SERVER_IP, &server.sin_addr) != 1) {
+    // handle failure
+    if (inet_pton(AF_INET, SERVER_IP, &server.sin_addr) != 1) 
+    {
         fprintf(stderr, "Invalid SERVER_IP\n");
         return 1;
     }
-    // Initialize socket
+    // create UDP socket
     s = socket(AF_INET, SOCK_DGRAM, 0);
+    // check for failure
     if (s == INVALID_SOCKET) { perror("socket"); return 1; }
 
     // Receive timeout so a lost datagram or only-spoofed traffic can't hang forever. 
@@ -34,7 +39,7 @@ int main(void)
 #endif
     setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv, sizeof tv);
 
-    // Request an empty datagram
+    // Request an empty datagram.
     if (sendto(s, "", 0, 0, (struct sockaddr *)&server, sizeof server) < 0) 
     {
         perror("sendto");
@@ -51,11 +56,12 @@ int main(void)
             SOCK_CLEANUP();
             return 1;
         }
-        // Accept only packets whose sender IP matches the server we asked. 
+        // Accept only packets whose sender IP matches server
         if (from.sin_addr.s_addr != server.sin_addr.s_addr) 
         {
             fprintf(stderr, "Discarded packet from unexpected sender %s\n",
                     inet_ntoa(from.sin_addr));
+            // print error if timeout
             if (time(NULL) >= deadline) 
             {
                 fprintf(stderr, "Timed out waiting for the real server\n");
@@ -69,7 +75,7 @@ int main(void)
         printf("%s", buf);
         break;
     }
-
+    // close out socket
     CLOSESOCK(s);
     SOCK_CLEANUP();
     return 0;
